@@ -111,5 +111,20 @@ Note that the communication between workers (Tomcat containers) and the balancer
     -e 'TOMCAT_SERVER_CRT_BASE64=Q2VydGlmaWN...many...more...chars...LRVktLS0tLQo=' \
     -d -i --name jws-tomcat-8-mod_cluster your-docker-registry.example.com/karm/jws-tomcat-8-mod_cluster:3.1.1
 
+# Accessing your Tomcat container
+
+In this example, one may access the container on the host's address that conforms to the ```TOMCAT_NIC``` and ```TOMCAT_ADDR_PREFIX``` settings above, e.g.  ```curl https://10.40.4.255:8443 --cacert certs/myca.crt``` or ```curl https://10.40.4.255:8443 --insecure``` if you didn't input correct hostname during certificate generation for testing purposes.
+
+To deploy an application, one might either create a new Docker image that uses this one as a base and just adds the application:
+
+    FROM your-docker-registry.example.com/karm/jws-tomcat-8-mod_cluster:3.1.1
+    ADD clusterbench.war ${TC_WEBAPPS}
+
+or, especially for demonstration and testing, one might use the management interface:
+
+    curl -T "clusterbench.war" "https://tomcat:tomcat@10.40.4.255:8443/manager/text/deploy?path=/clusterbench&update=true" --insecure
+
+Note the user and password above set in ```TOMCAT_USERNAME``` and ```TOMCAT_PASSWORD```.
 
 
+Enjoy mod_cluster :)
