@@ -28,11 +28,10 @@ if [[ "${MYIP}X" == "X" ]]; then
     exit 1
 fi
 
-if [ "`echo \"${HOSTNAME}\" | wc -c`" -gt 24 ]; then
-    echo "ERROR: HOSTNAME ${HOSTNAME} must be up to 24 characters long."
-    exit 1
-fi
-
+#if [ "`echo \"${HOSTNAME}\" | wc -c`" -gt 24 ]; then
+#    echo "ERROR: HOSTNAME ${HOSTNAME} must be up to 24 characters long."
+#    exit 1
+#fi
 
 # Do we need certificates?
 if [[ "${TOMCAT_MOD_CLUSTER_SSL:-true}" == "true" ]] || [[ "${TOMCAT_ENABLE_HTTPS_CONNECTOR:-true}" == "true" ]]; then
