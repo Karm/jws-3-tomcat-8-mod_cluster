@@ -32,21 +32,7 @@ RUN unzip ${JWS_ZIP} 'jws-3.1/tomcat8/*' -d . && \
     yes | unzip ${JWS_PATCH_ZIP} 'jws-3.1/tomcat8/*' -d . && \
     rm -rf ${JWS_ZIP} && rm -rf ${JWS_PATCH_ZIP}
 
-ENV JAVA_OPTS="\
- -server \
- -Xms${TOMCAT_MS_RAM:-512m} \
- -Xmx${TOMCAT_MX_RAM:-512m} \
- -XX:MetaspaceSize=${TOMCAT_META_SPACE_SIZE:-64M} \
- -XX:MaxMetaspaceSize=${TOMCAT_MAX_META_SPACE_SIZE:-128m} \
- -XX:${TOMCAT_GC_IMPLEMENTATION:-+UseG1GC} \
- -XX:MaxGCPauseMillis=${TOMCAT_MAX_GC_PAUSE_MILLIS:-100} \
- -XX:InitiatingHeapOccupancyPercent=${TOMCAT_INITIATING_HEAP_OCCUPANCY_PERCENT:-70} \
- -XX:+HeapDumpOnOutOfMemoryError \
- -XX:HeapDumpPath=/opt/tomcat \
- -Djava.net.preferIPv4Stack=${TOMCAT_PREFER_IPV4_STACK:-true} \
- -Djava.awt.headless=true \
- -Djava.security.egd=${TOMCAT_RNG:-file:///dev/random}"
-
 ADD server.xml ${TC_CONF_DIR}
+ADD tomcat-users.xml ${TC_CONF_DIR}
 ADD tomcat.sh /opt/tomcat/
 CMD ["/opt/tomcat/tomcat.sh"]
