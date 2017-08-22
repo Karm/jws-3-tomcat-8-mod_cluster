@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Server port="@TOMCAT_SHUTDOWN_PORT@" shutdown="SHUTDOWN">
+
+<Listener className="org.apache.catalina.startup.VersionLoggerListener"/>
+<Listener SSLEngine="on" className="org.apache.catalina.core.AprLifecycleListener"/>
+<Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+<Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+<Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+<!--MOD_CLUSTER_LISTENER
+<Listener
+    className="org.jboss.modcluster.container.catalina.standalone.ModClusterListener"
+    ssl="@TOMCAT_MOD_CLUSTER_SSL@"
+    sslTrustStore="@TOMCAT_MOD_CLUSTER_SSL_TRUSTSTORE@"
+    sslTrustStorePassword="@TOMCAT_MOD_CLUSTER_SSL_TRUSTSTORE_PASSWORD@"
+    sslKeyStore="@TOMCAT_MOD_CLUSTER_SSL_KEYSTORE@"
+    sslKeyStorePassword="@TOMCAT_MOD_CLUSTER_SSL_KEYSTORE_PASSWORD@"
+    sslKeyStoreType="@TOMCAT_MOD_CLUSTER_SSL_KEYSTORE_TYPE@"
+    sslTrustStoreType="@TOMCAT_MOD_CLUSTER_SSL_TRUSTSTORE_TYPE@"
+    sslKeyAlias="@TOMCAT_MOD_CLUSTER_SSL_KEY_ALIAS@"
+    sslProtocol="@TOMCAT_MOD_CLUSTER_SSL_PROTOCOL@"
+    stickySessionForce="@TOMCAT_MOD_CLUSTER_STICKY_SESSION_FORCE@"
+    stickySession="@TOMCAT_MOD_CLUSTER_STICKY_SESSION@"
+    stickySessionRemove="@TOMCAT_MOD_CLUSTER_STICKY_SESSION_REMOVE@"
+    loadMetricClass="@TOMCAT_MOD_CLUSTER_LOAD_METRIC_CLASS@"
+    loadMetricCapacity="@TOMCAT_MOD_CLUSTER_LOAD_METRIC_CAPACITY@"
+    loadDecayFactor="@TOMCAT_MOD_CLUSTER_LOAD_DECAY_FACTOR@"
+    loadHistory="@TOMCAT_MOD_CLUSTER_LOAD_HISTORY@"
+    advertise="@TOMCAT_MOD_CLUSTER_ADVERTISE@"
+    proxyList="@TOMCAT_MOD_CLUSTER_PROXY_LIST@"
+    advertisePort="@TOMCAT_MOD_CLUSTER_ADVERTISE_PORT@"
+    advertiseInterface="@TOMCAT_MOD_CLUSTER_ADVERTISE_INTERFACE@"
+    advertiseGroupAddress="@TOMCAT_MOD_CLUSTER_ADVERTISE_GROUPADDRESS@"
+/>
+MOD_CLUSTER_LISTENER-->
+<GlobalNamingResources>
+<Resource factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+    auth="Container" name="UserDatabase"
+    description="User database that can be updated and saved"
+    type="org.apache.catalina.UserDatabase"
+    pathname="conf/tomcat-users.xml"
+/>
+</GlobalNamingResources>
+
+<Service name="Catalina">
+    <Engine defaultHost="@TOMCAT_DEFAULT_HOST@" name="Catalina" jvmRoute="@TOMCAT_JVM_ROUTE@">
+    <Realm className="org.apache.catalina.realm.LockOutRealm">
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
+    </Realm>
+    <Host autoDeploy="true" appBase="webapps" name="@TOMCAT_DEFAULT_HOST@" unpackWARs="true">
+    <Valve prefix="@TOMCAT_DEFAULT_HOST@_access_log" pattern="%h %l %u %t &quot;%r&quot; %s %b"
+           className="org.apache.catalina.valves.AccessLogValve" suffix=".txt" directory="logs"/>
+    </Host>
+    </Engine>
+<!--HTTPS_CONNECTOR
+    <Connector
+        port="@TOMCAT_HTTPS_CONNECTOR_PORT@"
+        address="@TOMCAT_HTTPS_CONNECTOR_ADDRESS@"
+        protocol="@TOMCAT_HTTPS_CONNECTOR_PROTOCOL@"
+        SSLEnabled="@TOMCAT_HTTPS_CONNECTOR_SSL_ENABLED@"
+        maxThreads="@TOMCAT_HTTPS_CONNECTOR_MAX_THREADS@"
+        scheme="@TOMCAT_HTTPS_CONNECTOR_SCHEME@"
+        secure="@TOMCAT_HTTPS_CONNECTOR_SECURE@"
+        clientAuth="@TOMCAT_HTTPS_CONNECTOR_CLIENT_AUTH@"
+        SSLCertificateFile="@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_FILE@"
+        SSLCertificateKeyFile="@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_KEYFILE@"
+        SSLCertificateChainFile="@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_CHAINFILE@"
+        SSLPassword="@TOMCAT_HTTPS_CONNECTOR_SSL_PASSWORD@"
+        SSLProtocol="@TOMCAT_HTTPS_CONNECTOR_SSL_PROTOCOL@"
+        bufferSize="@TOMCAT_HTTPS_CONNECTOR_BUFFER_SIZE@"
+        compression="@TOMCAT_HTTPS_CONNECTOR_COMPRESSION@"
+        maxHttpHeaderSize="@TOMCAT_HTTPS_CONNECTOR_MAX_HTTP_HEADER_SIZE@"
+        connectionTimeout="@TOMCAT_HTTPS_CONNECTOR_CONNECTION_TIMEOUT@"
+        tcpNoDelay="@TOMCAT_HTTPS_CONNECTOR_TCP_NO_DELAY@"
+        enableLookups="@TOMCAT_HTTPS_CONNECTOR_ENABLE_LOOKUPS@"
+    />
+HTTPS_CONNECTOR-->
+<!--HTTP_CONNECTOR
+    <Connector
+        port="@TOMCAT_HTTP_CONNECTOR_PORT@"
+        address="@TOMCAT_HTTP_CONNECTOR_ADDRESS@"
+        protocol="@TOMCAT_HTTP_CONNECTOR_PROTOCOL@"
+        maxThreads="@TOMCAT_HTTP_CONNECTOR_MAX_THREADS@"
+        bufferSize="@TOMCAT_HTTP_CONNECTOR_BUFFER_SIZE@"
+        compression="@TOMCAT_HTTP_CONNECTOR_COMPRESSION@"
+        maxHttpHeaderSize="@TOMCAT_HTTP_CONNECTOR_MAX_HTTP_HEADER_SIZE@"
+        connectionTimeout="@TOMCAT_HTTP_CONNECTOR_CONNECTION_TIMEOUT@"
+        tcpNoDelay="@TOMCAT_HTTP_CONNECTOR_TCP_NO_DELAY@"
+        enableLookups="@TOMCAT_HTTP_CONNECTOR_ENABLE_LOOKUPS@"
+        redirectPort="@TOMCAT_HTTP_CONNECTOR_REDIRECT_PORT@"
+    />
+HTTP_CONNECTOR-->
+<!--AJP_CONNECTOR
+    <Connector
+        port="@TOMCAT_AJP_CONNECTOR_PORT@"
+        address="@TOMCAT_AJP_CONNECTOR_ADDRESS@"
+        protocol="@TOMCAT_AJP_CONNECTOR_PROTOCOL@"
+        redirectPort="@TOMCAT_AJP_CONNECTOR_REDIRECT_PORT@"
+        maxThreads="@TOMCAT_AJP_CONNECTOR_MAX_THREADS@"
+        bufferSize="@TOMCAT_AJP_CONNECTOR_BUFFER_SIZE@"
+        maxHttpHeaderSize="@TOMCAT_AJP_CONNECTOR_MAX_HTTP_HEADER_SIZE@"
+        tcpNoDelay="@TOMCAT_AJP_CONNECTOR_TCP_NO_DELAY@"
+        enableLookups="@TOMCAT_AJP_CONNECTOR_ENABLE_LOOKUPS@"
+        connectionTimeout="@TOMCAT_AJP_CONNECTOR_CONNECTION_TIMEOUT@"
+    />
+AJP_CONNECTOR-->
+</Service>
+</Server>
