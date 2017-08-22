@@ -21,5 +21,7 @@
               version="1.0">
 <role rolename="manager-script"/>
 <role rolename="manager-gui"/>
-<user username="@TOMCAT_USERNAME@" password="@TOMCAT_PASSWORD@" roles="manager-script,manager-gui"/>
+<role rolename="admin-script"/>
+<role rolename="admin-gui"/>
+<user username="@TOMCAT_USERNAME@" password="@TOMCAT_PASSWORD@" roles="manager-script,manager-gui,admin-script,admin-gui"/>
 </tomcat-users>

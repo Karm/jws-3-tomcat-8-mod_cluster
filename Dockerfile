@@ -28,8 +28,8 @@ USER tomcat
 
 ADD ["${JWS_ZIP}", "${JWS_PATCH_ZIP}", "/opt/tomcat/"]
 
-RUN unzip ${JWS_ZIP} 'jws-3.1/tomcat8/*' -d . && \
-    yes | unzip ${JWS_PATCH_ZIP} 'jws-3.1/tomcat8/*' -d . && \
+RUN unzip ${JWS_ZIP} 'jws-3.1/tomcat8/*' 'jws-3.1/openssl/*' -d . && \
+    yes | unzip ${JWS_PATCH_ZIP} -d . && rm -rf 'jws-3.1/tomcat7' && \
     rm -rf ${JWS_ZIP} && rm -rf ${JWS_PATCH_ZIP}
 
 ADD server.xml ${TC_CONF_DIR}

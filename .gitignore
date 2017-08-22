@@ -1,2 +1,5 @@
 *.zip
 jws-3.1
+*.war
+certs/
+notes.txt

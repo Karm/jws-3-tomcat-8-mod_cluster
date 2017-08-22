@@ -5,6 +5,7 @@
 # Debug logging
 echo "STAT: `networkctl status`" >> /opt/tomcat/ip.log
 echo "STAT ${TOMCAT_NIC:-eth0}: `networkctl status ${TOMCAT_NIC:-eth0}`" >> /opt/tomcat/ip.log
+echo $PATH
 
 # Wait n seconds for the interface to wake up
 TIMEOUT=20
@@ -78,7 +79,7 @@ if [[ "${TOMCAT_MOD_CLUSTER_SSL:-true}" == "true" ]] || [[ "${TOMCAT_ENABLE_HTTP
             exit 1
         fi
         openssl pkcs12 -export -in /opt/tomcat/certs/client.crt -inkey /opt/tomcat/certs/client.key -out /opt/tomcat/certs/client.pfx -passout pass:"${TOMCAT_KEYSTORE_PASS}"
-        echo -e "${TOMCAT_KEYSTORE_PASS}\n${TOMCAT_KEYSTORE_PASS}\n${TOMCAT_KEYSTORE_PASS}" | keytool -importkeystore -destkeystore /opt/tomcat/certs/client-cert-key.jks -destalias "${TOMCAT_MOD_CLUSTER_SSL_KEY_ALIAS:-tcclient}" -srckeystore /opt/tomcat/certs/client.pfx -srcstoretype PKCS12
+        echo -e "${TOMCAT_KEYSTORE_PASS}\n${TOMCAT_KEYSTORE_PASS}\n${TOMCAT_KEYSTORE_PASS}" | keytool -importkeystore -destkeystore /opt/tomcat/certs/client-cert-key.jks -srckeystore /opt/tomcat/certs/client.pfx -srcstoretype PKCS12
         if ! [[ -s /opt/tomcat/certs/client-cert-key.jks  ]]; then
             echo "File /opt/tomcat/certs/client-cert-key.jks  must not be empty."
             exit 1
@@ -132,7 +133,6 @@ if [[ "${TOMCAT_ENABLE_MOD_CLUSTER:-true}" == "true" ]]; then
     sed -i "s~@TOMCAT_MOD_CLUSTER_SSL_KEYSTORE_PASSWORD@~${TOMCAT_KEYSTORE_PASS:-changeit}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_MOD_CLUSTER_SSL_KEYSTORE_TYPE@~${TOMCAT_MOD_CLUSTER_SSL_KEYSTORE_TYPE:-JKS}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_MOD_CLUSTER_SSL_TRUSTSTORE_TYPE@~${TOMCAT_MOD_CLUSTER_SSL_TRUSTSTORE_TYPE:-JKS}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_MOD_CLUSTER_SSL_KEY_ALIAS@~${TOMCAT_MOD_CLUSTER_SSL_KEY_ALIAS:-tcclient}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_MOD_CLUSTER_SSL_PROTOCOL@~${TOMCAT_MOD_CLUSTER_SSL_PROTOCOL:-TLSv1.2}~g" ${TC_CONF_DIR}/server.xml
 
     sed -i "s~@TOMCAT_MOD_CLUSTER_STICKY_SESSION_FORCE@~${TOMCAT_MOD_CLUSTER_STICKY_SESSION_FORCE:-false}~g" ${TC_CONF_DIR}/server.xml
@@ -162,12 +162,11 @@ if [[ "${TOMCAT_ENABLE_HTTPS_CONNECTOR:-true}" == "true" ]]; then
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SCHEME@~${TOMCAT_HTTPS_CONNECTOR_SCHEME:-https}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SECURE@~${TOMCAT_HTTPS_CONNECTOR_SECURE:-true}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_CLIENT_AUTH@~${TOMCAT_HTTPS_CONNECTOR_CLIENT_AUTH:-true}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_FILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_FILE:-/opt/workspace/server.crt}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_KEYFILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_KEYFILE:-/opt/workspace/server.key}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_CHAINFILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_CHAINFILE:-/opt/workspace/ca.crt}~g" ${TC_CONF_DIR}/server.xml
+    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_FILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_FILE:-/opt/tomcat/certs/server.crt}~g" ${TC_CONF_DIR}/server.xml
+    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_KEYFILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_KEYFILE:-/opt/tomcat/certs/server.key}~g" ${TC_CONF_DIR}/server.xml
+    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_CHAINFILE@~${TOMCAT_HTTPS_CONNECTOR_SSL_CERTIFICATE_CHAINFILE:-/opt/tomcat/certs/ca.crt}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_PASSWORD@~${TOMCAT_KEYSTORE_PASS:-changeit}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_SSL_PROTOCOL@~${TOMCAT_HTTPS_CONNECTOR_SSL_PROTOCOL:-TLSv1.2}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_HTTPS_CONNECTOR_BUFFER_SIZE@~${TOMCAT_HTTPS_CONNECTOR_BUFFER_SIZE:-${TOMCAT_BUFFER_SIZE:-10240}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_COMPRESSION@~${TOMCAT_HTTPS_CONNECTOR_COMPRESSION:-${TOMCAT_COMPRESSION:-on}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_MAX_HTTP_HEADER_SIZE@~${TOMCAT_HTTPS_CONNECTOR_MAX_HTTP_HEADER_SIZE:-${TOMCAT_MAX_HTTP_HEADER_SIZE:-8192}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTPS_CONNECTOR_CONNECTION_TIMEOUT@~${TOMCAT_HTTPS_CONNECTOR_CONNECTION_TIMEOUT:-${TOMCAT_CONNECTION_TIMEOUT:-20000}}~g" ${TC_CONF_DIR}/server.xml
@@ -182,7 +181,6 @@ if [[ "${TOMCAT_ENABLE_HTTP_CONNECTOR:-true}" == "true" ]]; then
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_ADDRESS@~${TOMCAT_HTTP_CONNECTOR_ADDRESS:-${TOMCAT_CONNECTOR_ADDRESS:-${MYIP}}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_PROTOCOL@~${TOMCAT_HTTP_CONNECTOR_PROTOCOL:-org.apache.coyote.http11.Http11AprProtocol}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_MAX_THREADS@~${TOMCAT_HTTP_CONNECTOR_MAX_THREADS:-${TOMCAT_MAX_THREADS:-150}}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_HTTP_CONNECTOR_BUFFER_SIZE@~${TOMCAT_HTTP_CONNECTOR_BUFFER_SIZE:-${TOMCAT_BUFFER_SIZE:-10240}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_COMPRESSION@~${TOMCAT_HTTP_CONNECTOR_COMPRESSION:-${TOMCAT_COMPRESSION:-on}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_MAX_HTTP_HEADER_SIZE@~${TOMCAT_HTTP_CONNECTOR_MAX_HTTP_HEADER_SIZE:-${TOMCAT_MAX_HTTP_HEADER_SIZE:-8192}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_HTTP_CONNECTOR_CONNECTION_TIMEOUT@~${TOMCAT_HTTP_CONNECTOR_CONNECTION_TIMEOUT:-${TOMCAT_CONNECTION_TIMEOUT:-20000}}~g" ${TC_CONF_DIR}/server.xml
@@ -199,7 +197,6 @@ if [[ "${TOMCAT_ENABLE_AJP_CONNECTOR:-true}" == "true" ]]; then
     sed -i "s~@TOMCAT_AJP_CONNECTOR_PROTOCOL@~${TOMCAT_AJP_CONNECTOR_PROTOCOL:-org.apache.coyote.ajp.AjpAprProtocol}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_AJP_CONNECTOR_REDIRECT_PORT@~${TOMCAT_AJP_CONNECTOR_REDIRECT_PORT:-${TOMCAT_HTTPS_CONNECTOR_PORT:-8443}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_AJP_CONNECTOR_MAX_THREADS@~${TOMCAT_AJP_CONNECTOR_MAX_THREADS:-${TOMCAT_MAX_THREADS:-150}}~g" ${TC_CONF_DIR}/server.xml
-    sed -i "s~@TOMCAT_AJP_CONNECTOR_BUFFER_SIZE@~${TOMCAT_AJP_CONNECTOR_BUFFER_SIZE:-${TOMCAT_BUFFER_SIZE:-10240}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_AJP_CONNECTOR_MAX_HTTP_HEADER_SIZE@~${TOMCAT_AJP_CONNECTOR_MAX_HTTP_HEADER_SIZE:-${TOMCAT_MAX_HTTP_HEADER_SIZE:-8192}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_AJP_CONNECTOR_TCP_NO_DELAY@~${TOMCAT_AJP_CONNECTOR_TCP_NO_DELAY:-${TOMCAT_TCP_NO_DELAY:-true}}~g" ${TC_CONF_DIR}/server.xml
     sed -i "s~@TOMCAT_AJP_CONNECTOR_ENABLE_LOOKUPS@~${TOMCAT_AJP_CONNECTOR_ENABLE_LOOKUPS:-${TOMCAT_ENABLE_LOOKUPS:-true}}~g" ${TC_CONF_DIR}/server.xml
